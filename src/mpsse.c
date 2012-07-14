@@ -686,6 +686,7 @@ char *Read(struct mpsse_context *mpsse, int size)
 	unsigned char *data = NULL, *buf = NULL;
 	char sbuf[SPI_RW_SIZE] = { 0 };
 	int n = 0, rxsize = 0, data_size = 0;
+	int retval;
 
 	if(is_valid_context(mpsse))
 	{
@@ -707,7 +708,10 @@ char *Read(struct mpsse_context *mpsse, int size)
 					data = build_block_buffer(mpsse, mpsse->rx, (unsigned char *) &sbuf, rxsize, &data_size);
 					if(data)
 					{
-						if(raw_write(mpsse, data, data_size) == MPSSE_OK)
+						retval = raw_write(mpsse, data, data_size);
+						free(data);
+
+						if (retval == MPSSE_OK)
 						{
 							n += raw_read(mpsse, buf+n, rxsize);
 						}
@@ -715,8 +719,6 @@ char *Read(struct mpsse_context *mpsse, int size)
 						{
 							break;
 						}
-						
-						free(data);
 					}
 					else
 					{
