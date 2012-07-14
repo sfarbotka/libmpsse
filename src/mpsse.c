@@ -341,7 +341,7 @@ int SetMode(struct mpsse_context *mpsse, int endianess)
  * Returns MPSSE_OK on success.
  * Returns MPSSE_FAIL on failure.
  */
-int SetClock(struct mpsse_context *mpsse, uint32_t freq)
+int SetClock(struct mpsse_context *mpsse, int freq)
 {
 	int retval = MPSSE_FAIL;
 	uint32_t system_clock = 0;
