@@ -1,0 +1,11 @@
+/Makefile
+/_pylibmpsse.so
+/autom4te.cache
+/configure
+/config.h
+/config.log
+/config.status
+/libmpsse.a
+/libmpsse.so
+/mpsse_wrap.c
+/pylibmpsse.py
