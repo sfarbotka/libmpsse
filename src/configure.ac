@@ -29,6 +29,11 @@ then
 
 	if ! test $SWIG
 	then
+		SWIG="$(which swig2.0)"
+	fi
+
+	if ! test $SWIG
+	then
 		echo "error: could not locate swig"
 		exit 1
 	fi
