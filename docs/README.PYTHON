@@ -1,0 +1,156 @@
+NAME
+    mpsse
+
+FILE
+    libmpsse/src/mpsse.py
+
+CLASSES
+    MPSSE
+    
+    class MPSSE
+     |  Python class wrapper for libmpsse.
+     |  
+     |  Methods defined here:
+     |  
+     |  Close(self)
+     |      Closes the device, deinitializes libftdi, and frees the libmpsse context.
+     |  
+     |  ErrorString(self)
+     |      Returns the last libftdi error string.
+     |  
+     |  GetAck(self)
+     |      Returns the last received ACK bit.
+     |      Returns 0 for ACK, 1 for NACK.
+     |  
+     |  GetClock(self)
+     |      Gets the currently configured clock rate.
+     |  
+     |  GetDescription(self)
+     |      Returns the description of the FTDI chip, if any. 
+     |      This will only be populated if __init__ is used to open the device.
+     |  
+     |  GetPid(self)
+     |      Returns the product ID of the FTDI chip.
+     |  
+     |  GetVid(self)
+     |      Returns the vendor ID of the FTDI chip.
+     |  
+     |  Open(self, vid, pid, mode, frequency, endianess=0, interface=1, description=None, serial=None)
+     |      Opens the specified USB device.
+     |      Endianess defaults to MSB; interface defaults to IFACE_A; description and serial default to None.
+     |  
+     |  PinHigh(self, pin)
+     |      Sets the specified GPIO pin high.
+     |      The pin can be GPIO pin 0 - 11.
+     |  
+     |  PinLow(self, pin)
+     |      Sets the specified GPIO pin low.
+     |      The Pin can be GPIO pin 0 - 11.
+     |  
+     |  PinState(self, pin, state=-1)
+     |      Checks the current state of the pins. For use in BITBANG mode only.
+     |      Set pin to the pin number you want to check. 
+     |      State is the value returned by ReadPins. If not specified, ReadPins will be called automatically.
+     |  
+     |  Read(self, size)
+     |      Reads size bytes of data over the selected serial protocol.
+     |  
+     |  ReadPins(self)
+     |      Reads the current state of the chip's pins. For use in BITBANG mode only.
+     |      Returns a byte with the corresponding pin's bits set.
+     |  
+     |  SendAcks(self)
+     |      Causes all subsequent I2C read operations to respond with an acknowledgement.
+     |  
+     |  SendNacks(self)
+     |      Causes all subsequent I2C read operations to respond with a no-acknowledgement.
+     |  
+     |  SetAck(self, ack)
+     |      Sets the transmitted ACK bit. ACKs are sent by default.
+     |      Set ack = 1 to send ACKs, ack = 0 to send NACKs.
+     |  
+     |  SetCSIdle(self, idle)
+     |      Sets the idle state of the chip select pin. CS idles high by default.
+     |      Only appropriate when using one of the SPI modes.
+     |      Set idle = 1 to idle high, idle = 0 to idle low.
+     |  
+     |  SetClock(self, frequency)
+     |      Sets the appropriate divisor for the desired clock frequency. Frequency must be specified in hertz.
+     |      Called internally by __init__ and Open.
+     |  
+     |  SetLoopback(self, enable)
+     |      Enable / disable internal loopback. Loopback is disabled by default.
+     |      Set enable = 1 to enable, enable = 0 to disable.
+     |  
+     |  SetMode(self, mode, endianess)
+     |      Sets the appropriate transmit and receive commands based on the requested mode and byte order.
+     |      Called internally by __init__ and Open.
+     |  
+     |  Start(self)
+     |      Send data start condition.
+     |  
+     |  Stop(self)
+     |      Send data stop condition.
+     |  
+     |  Transfer(self, data)
+     |      Sends data and reads len(data) bytes in SPI mode.
+     |  
+     |  Version(self)
+     |      Returns the libmpsse version number.
+     |      High nibble is major, low nibble is minor.
+     |  
+     |  Write(self, data)
+     |      Send data (string) out via the selected serial protocol.
+     |  
+     |  __init__(self, mode=None, frequency=1000000, endianess=0)
+     |      If mode is specified, then attempt to connect to any known FTDI chip.
+     |      If mode is not specified, this simply returns the class instance.
+     |      Endianess defaults to MSB.
+
+DATA
+    ACK = 0
+    NACK = 1
+
+    ONE_HUNDRED_KHZ = 100000
+    FOUR_HUNDRED_KHZ = 400000
+    ONE_MHZ = 1000000
+    TWO_MHZ = 2000000
+    FIVE_MHZ = 5000000
+    SIX_MHZ = 6000000
+    TEN_MHZ = 10000000
+    TWELVE_MHZ = 12000000
+    THIRTY_MHZ = 30000000
+
+    SPI0 = 1
+    SPI1 = 2
+    SPI2 = 3
+    SPI3 = 4
+    I2C = 5
+    GPIO = 6
+    BITBANG = 7
+
+    GPIOL0 = 0
+    GPIOL1 = 1
+    GPIOL2 = 2
+    GPIOL3 = 3
+    GPIOH0 = 4
+    GPIOH1 = 5
+    GPIOH2 = 6
+    GPIOH3 = 7
+    GPIOH4 = 8
+    GPIOH5 = 9
+    GPIOH6 = 10
+    GPIOH7 = 11
+
+    IFACE_ANY = 0
+    IFACE_A = 1
+    IFACE_B = 2
+    IFACE_C = 3
+    IFACE_D = 4
+ 
+    MSB = 0
+    LSB = 8
+
+    MPSSE_OK = 0
+    MPSSE_FAIL = -1
+
