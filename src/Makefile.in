@@ -2,7 +2,6 @@ CC=@CC@
 SWIG=@SWIG@
 PYLIB=@PYLIB@
 SONAME=@SONAME@
-FRAMEWORK=@FRAMEWORK@
 BUILD=@BUILD@
 LDFLAGS=@LDFLAGS@
 CFLAGS=@CFLAGS@
@@ -33,7 +32,7 @@ pyswig-build:
 	$(CC) $(CFLAGS) $(LDFLAGS) -DSWIGPYTHON -c mpsse.c
 	$(SWIG) -python $(TARGET).i
 	$(CC) $(CFLAGS) -c  $(TARGET)_wrap.c
-	$(CC) $(CFLAGS) -shared $(FRAMEWORK) $(TARGET)_wrap.o mpsse.o support.o -o _pylib$(TARGET).$(LIBEXT) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared $(TARGET)_wrap.o mpsse.o support.o -o _pylib$(TARGET).$(LIBEXT)
 
 pyswig-install:
 	cp pylib$(TARGET).py $(PYLIB)/pylib$(TARGET).py

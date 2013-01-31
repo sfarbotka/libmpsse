@@ -13,9 +13,17 @@ AC_TYPE_SIZE_T
 AC_FUNC_MALLOC
 
 AC_CHECK_FUNCS([malloc memset],[],AC_MSG_ERROR(["missing standard functions"]))
-AC_CHECK_LIB([ftdi],[ftdi_init],[],[echo "error: missing libftdi library" && exit 1],[])
-AC_CHECK_HEADERS([stdlib.h stdint.h string.h],[],[echo "error: missing standard header files" && exit 1])
+AC_CHECK_HEADERS([stdlib.h stdint.h string.h],[],AC_MSG_ERROR(["error: missing standard header files"]))
+
+dnl For OSX add MacPorts paths
+AS_IF([test "$(uname)" == "Darwin"],
+[
+    LDFLAGS="$LDFLAGS -L/opt/local/lib"
+    CFLAGS="$CFLAGS -I/opt/local/include"
+])
+
 AC_CHECK_HEADERS([ftdi.h],[],[echo "error: missing libftdi header files" && exit 1])
+AC_CHECK_LIB([ftdi],[ftdi_init],[],[echo "error: missing libftdi library" && exit 1],[])
 
 if test $BUILD
 then
@@ -47,7 +55,7 @@ then
 	if ! test $PYLIB
 	then
 		dnl This is a hack to get a valid python library path
-		script=$(echo -e "import sys\nfor p in sys.path: print p")
+		script=$(printf "import sys\nfor p in sys.path: print p")
 		PYLIB=$($PYTHON -c "$script" | grep -e '-packages$' | head -1)
 	fi
 
@@ -62,18 +70,15 @@ AS_CASE([$(uname)],
 [MINGW*], 
 [
 	SONAME="-soname"
-	FRAMEWORK=""
 	LIBEXT="pyd"
 ],
 [Darwin],
 [
 	SONAME="-install_name"
-	FRAMEWORK="-framework Python"
 	LIBEXT="so"
 ],
 [
 	SONAME="-soname"
-	FRAMEWORK=""
 	LIBEXT="so"
 ])
 
@@ -83,7 +88,6 @@ AC_SUBST(BUILD, $BUILD)
 AC_SUBST(SWIG, $SWIG)
 AC_SUBST(PYLIB, $PYLIB)
 AC_SUBST(SONAME, $SONAME)
-AC_SUBST(FRAMEWORK, $FRAMEWORK)
 AC_SUBST(LIBEXT, $LIBEXT)
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
