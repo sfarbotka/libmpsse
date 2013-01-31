@@ -1,23 +1,22 @@
 CC=@CC@
 SWIG=@SWIG@
-PYDEV=@PYDEV@
 PYLIB=@PYLIB@
 SONAME=@SONAME@
 FRAMEWORK=@FRAMEWORK@
 BUILD=@BUILD@
 LDFLAGS=@LDFLAGS@
 CFLAGS=@CFLAGS@
+LIBEXT=@LIBEXT@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 LIBDIR=@libdir@
 INCDIR=@includedir@
-INC=-I$(PYDEV)
 TARGET=mpsse
 
 all: $(TARGET) py$(BUILD)-build
 
 $(TARGET): mpsse.o
-	$(CC) $(CFLAGS) -shared -Wl,$(SONAME),lib$(TARGET).so $(TARGET).o support.o -o lib$(TARGET).so $(LDFLAGS)
+	$(CC) $(CFLAGS) -shared -Wl,$(SONAME),lib$(TARGET).$(LIBEXT) $(TARGET).o support.o -o lib$(TARGET).$(LIBEXT) $(LDFLAGS)
 	ar rcs lib$(TARGET).a $(TARGET).o support.o
 
 example-code:
@@ -33,12 +32,12 @@ pyswig-build:
 	$(CC) $(CFLAGS) $(LDFLAGS) -DSWIGPYTHON -c support.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -DSWIGPYTHON -c mpsse.c
 	$(SWIG) -python $(TARGET).i
-	$(CC) $(CFLAGS) -c  $(TARGET)_wrap.c  $(INC)
-	$(CC) $(CFLAGS) -shared $(FRAMEWORK) $(TARGET)_wrap.o mpsse.o support.o -o _pylib$(TARGET).so $(LDFLAGS) $(INC)
+	$(CC) $(CFLAGS) -c  $(TARGET)_wrap.c
+	$(CC) $(CFLAGS) -shared $(FRAMEWORK) $(TARGET)_wrap.o mpsse.o support.o -o _pylib$(TARGET).$(LIBEXT) $(LDFLAGS)
 
 pyswig-install:
 	cp pylib$(TARGET).py $(PYLIB)/pylib$(TARGET).py
-	cp _pylib$(TARGET).so $(PYLIB)/_pylib$(TARGET).so
+	cp _pylib$(TARGET).$(LIBEXT) $(PYLIB)/_pylib$(TARGET).$(LIBEXT)
 	cp $(TARGET).py $(PYLIB)/$(TARGET).py
 
 pyswig-uninstall:
@@ -50,17 +49,17 @@ py-install:
 py-uninstall:
 
 install: uninstall py$(BUILD)-install
-	cp lib$(TARGET).so $(LIBDIR)/lib$(TARGET).so
+	cp lib$(TARGET).$(LIBEXT) $(LIBDIR)/lib$(TARGET).$(LIBEXT)
 	cp lib$(TARGET).a $(LIBDIR)/lib$(TARGET).a
 	cp $(TARGET).h $(INCDIR)/$(TARGET).h
 
 uninstall: py$(BUILD)-uninstall
-	rm -f $(LIBDIR)/lib$(TARGET).so $(LIBDIR)/lib$(TARGET).a
+	rm -f $(LIBDIR)/lib$(TARGET).$(LIBEXT) $(LIBDIR)/lib$(TARGET).a
 	rm -f $(INCDIR)/$(TARGET).h
 
 clean:
 	make -C examples clean
-	rm -rf *.o *.so *.a _$(TARGET).py* pylib$(TARGET).py* $(TARGET)_wrap.c *.pyc
+	rm -rf *.o *.$(LIBEXT) *.a _$(TARGET).py* pylib$(TARGET).py* $(TARGET)_wrap.c *.pyc
 
 distclean: clean
 	rm -rf *.cache config.* Makefile

@@ -1,5 +1,6 @@
 /Makefile
 /_pylibmpsse.so
+/_pylibmpsse.pyd
 /autom4te.cache
 /configure
 /config.h
@@ -7,5 +8,6 @@
 /config.status
 /libmpsse.a
 /libmpsse.so
+/libmpsse.pyd
 /mpsse_wrap.c
 /pylibmpsse.py

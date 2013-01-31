@@ -12,9 +12,6 @@ AC_LANG(C)
 AC_TYPE_SIZE_T
 AC_FUNC_MALLOC
 
-LDFLAGS="-lftdi $LDFLAGS"
-CFLAGS="-Wall -fPIC -fno-strict-aliasing $CFLAGS"
-
 AC_CHECK_FUNCS([malloc memset],[],AC_MSG_ERROR(["missing standard functions"]))
 AC_CHECK_LIB([ftdi],[ftdi_init],[],[echo "error: missing libftdi library" && exit 1],[])
 AC_CHECK_HEADERS([stdlib.h stdint.h string.h],[],[echo "error: missing standard header files" && exit 1])
@@ -22,62 +19,71 @@ AC_CHECK_HEADERS([ftdi.h],[],[echo "error: missing libftdi header files" && exit
 
 if test $BUILD
 then
-	if ! test $SWIG
-	then
-		SWIG="$(which swig)"
+	AS_IF([! test $SWIG], [SWIG="$(which swig)"])
+	AS_IF([! test $SWIG], [SWIG="$(which swig2.0)"])
+	AS_IF([! test $SWIG], AC_MSG_ERROR(["error: could not locate swig"]))
+
+	if [[[ "$(uname)" == MINGW* ]]] ; then
+		AS_IF([! test $PYTHON], [PYTHON="C:\Python27\python.exe"])
+		AS_IF([! test $PYINCDIR], [PYINCDIR="C:\Python27\include"])
+		AS_IF([! test $PYLIBDIR], [PYLIBDIR="C:\Python27\libs"])
+		PYLDFLAGS="-lpython27 -L$PYLIBDIR"
+		PYCFLAGS="-I$PYINCDIR"
+	else
+		AS_IF([! test $PYTHON], [PYTHON="$(which python)"])
+		AS_IF([! test $PYTHON], AC_MSG_ERROR(["error: python not found"]))
+		AS_IF([! test $PYCONF], [PYCONF="$(which python-config)"])
+		AS_IF([! test $PYCONF], AC_MSG_ERROR(["error: python-config not found"]))
+
+		PYLDFLAGS="$($PYCONF --libs)"
+		PYCFLAGS="$($PYCONF --includes)"
 	fi
 
-	if ! test $SWIG
-	then
-		SWIG="$(which swig2.0)"
-	fi
+	LDFLAGS="$PYLDFLAGS $LDFLAGS"
+	CFLAGS="$PYCFLAGS $CFLAGS"
 
-	if ! test $SWIG
-	then
-		echo "error: could not locate swig"
-		exit 1
-	fi
-
-	if ! test $PYDEV
-	then
-		PYDEV="/usr/include/python$(python --version 2>&1 | awk '{print $2}' | cut -d'.' -f1,2)"
-	fi
-
-	AC_CHECK_HEADERS([$PYDEV/Python.h],[],[echo "error: missing python header files" && exit 1])
+	AC_CHECK_HEADERS([Python.h],[],[echo "error: missing python header files" && exit 1])
 
 	if ! test $PYLIB
 	then
 		dnl This is a hack to get a valid python library path
-		echo "import sys" > pylib.py
-		echo "for path in sys.path: print path" >> pylib.py
-		PYLIB="$(python pylib.py | grep -e '-packages$' | head -1)"
-		rm -f pylib.py
+		script=$(echo -e "import sys\nfor p in sys.path: print p")
+		PYLIB=$($PYTHON -c "$script" | grep -e '-packages$' | head -1)
 	fi
 
-	if ! test -d $PYLIB
-	then
-		echo "error: could not locate python library path"
-		exit 1
-	fi
+	AS_IF([! test $PYLIB], AC_MSG_ERROR(["error: could not locate python site-packages path"]))
 fi
 
-dnl OSX specific compiler flags
-if test "$(uname)" == "Darwin"
-then
-	SONAME="-install_name"
-	FRAMEWORK="-framework Python"
-else
+LDFLAGS="-lftdi $LDFLAGS"
+CFLAGS="-Wall -fPIC -fno-strict-aliasing $CFLAGS"
+
+dnl system specific compiler flags
+AS_CASE([$(uname)], 
+[MINGW*], 
+[
 	SONAME="-soname"
 	FRAMEWORK=""
-fi
+	LIBEXT="pyd"
+],
+[Darwin],
+[
+	SONAME="-install_name"
+	FRAMEWORK="-framework Python"
+	LIBEXT="so"
+],
+[
+	SONAME="-soname"
+	FRAMEWORK=""
+	LIBEXT="so"
+])
 
 cp confdefs.h config.h
 
 AC_SUBST(BUILD, $BUILD)
 AC_SUBST(SWIG, $SWIG)
-AC_SUBST(PYDEV, $PYDEV)
 AC_SUBST(PYLIB, $PYLIB)
 AC_SUBST(SONAME, $SONAME)
 AC_SUBST(FRAMEWORK, $FRAMEWORK)
+AC_SUBST(LIBEXT, $LIBEXT)
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
