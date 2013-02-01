@@ -32,11 +32,12 @@ then
 	AS_IF([! test $SWIG], AC_MSG_ERROR(["error: could not locate swig"]))
 
 	if [[[ "$(uname)" == MINGW* ]]] ; then
-		AS_IF([! test $PYTHON], [PYTHON="C:\Python27\python.exe"])
-		AS_IF([! test $PYINCDIR], [PYINCDIR="C:\Python27\include"])
-		AS_IF([! test $PYLIBDIR], [PYLIBDIR="C:\Python27\libs"])
+		AS_IF([! test $PYTHON], [PYTHON="C:/Python27/python.exe"])
+		AS_IF([! test $PYINCDIR], [PYINCDIR="C:/Python27/include"])
+		AS_IF([! test $PYLIBDIR], [PYLIBDIR="C:/Python27/libs"])
 		PYLDFLAGS="-lpython27 -L$PYLIBDIR"
 		PYCFLAGS="-I$PYINCDIR"
+		PYCPPFLAGS="-I$PYINCDIR"
 	else
 		AS_IF([! test $PYTHON], [PYTHON="$(which python)"])
 		AS_IF([! test $PYTHON], AC_MSG_ERROR(["error: python not found"]))
@@ -45,12 +46,14 @@ then
 
 		PYLDFLAGS="$($PYCONF --libs)"
 		PYCFLAGS="$($PYCONF --includes)"
+		PYCPPFLAGS="$($PYCONF --includes)"
 	fi
 
 	LDFLAGS="$PYLDFLAGS $LDFLAGS"
 	CFLAGS="$PYCFLAGS $CFLAGS"
+	CPPFLAGS="$PYCPPFLAGS $CPPFLAGS"
 
-	AC_CHECK_HEADERS([Python.h],[],[echo "error: missing python header files" && exit 1])
+	AC_CHECK_HEADERS([Python.h],[],AC_MSG_ERROR(["error: missing python header files"]))
 
 	if ! test $PYLIB
 	then

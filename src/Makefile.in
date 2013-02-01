@@ -14,25 +14,25 @@ TARGET=mpsse
 
 all: $(TARGET) py$(BUILD)-build
 
-$(TARGET): mpsse.o
+$(TARGET): mpsse.o support.o
 	$(CC) $(CFLAGS) -shared -Wl,$(SONAME),lib$(TARGET).$(LIBEXT) $(TARGET).o support.o -o lib$(TARGET).$(LIBEXT) $(LDFLAGS)
 	ar rcs lib$(TARGET).a $(TARGET).o support.o
 
 example-code:
 	make -C examples
 
-mpsse.o: support.o
-	$(CC) $(CFLAGS) $(LDFLAGS) -c mpsse.c
+mpsse.o:
+	$(CC) $(CFLAGS) -c mpsse.c
 
 support.o:
-	$(CC) $(CFLAGS) $(LDFLAGS) -c support.c
+	$(CC) $(CFLAGS) -c support.c
 
 pyswig-build:
-	$(CC) $(CFLAGS) $(LDFLAGS) -DSWIGPYTHON -c support.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -DSWIGPYTHON -c mpsse.c
+	$(CC) $(CFLAGS) -DSWIGPYTHON -c support.c
+	$(CC) $(CFLAGS) -DSWIGPYTHON -c mpsse.c
 	$(SWIG) -python $(TARGET).i
-	$(CC) $(CFLAGS) -c  $(TARGET)_wrap.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared $(TARGET)_wrap.o mpsse.o support.o -o _pylib$(TARGET).$(LIBEXT)
+	$(CC) $(CFLAGS) -c $(TARGET)_wrap.c
+	$(CC) $(CFLAGS) -shared $(TARGET)_wrap.o mpsse.o support.o -o _pylib$(TARGET).$(LIBEXT) $(LDFLAGS)
 
 pyswig-install:
 	cp pylib$(TARGET).py $(PYLIB)/pylib$(TARGET).py
