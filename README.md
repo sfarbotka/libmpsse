@@ -12,7 +12,7 @@ This project is clone of [libmpsse](http://code.google.com/p/libmpsse) with some
 
 ### Build on Windows
 1. Install MinGW with msys shell
-2. In msys shell run `mingw-get mingw32-automake mingw32-autotools mingw32-autoconf`
+2. In msys shell run `mingw-get install mingw32-automake mingw32-autotools mingw32-autoconf`
 3. Install [ftdi for mingw](http://code.google.com/p/picusb/downloads/list)
 4. Install Python2.7 to default directory (C:\Python27)
 5. From src directory run (using msys shell) `autoconf && ./configure && make`
