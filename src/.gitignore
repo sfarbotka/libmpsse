@@ -9,5 +9,9 @@
 /libmpsse.a
 /libmpsse.so
 /libmpsse.pyd
+/libmpsse.dll
 /mpsse_wrap.c
 /pylibmpsse.py
+/examples/Makefile
+/aclocal.m4
+/examples/*.exe

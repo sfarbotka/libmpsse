@@ -1,5 +1,6 @@
 AC_PREREQ([2.65])
 AC_INIT([libmpsse],[1.2],[http://libmpsse.googlecode.com])
+PKG_PROG_PKG_CONFIG(0.28)
 
 AC_ARG_ENABLE([python],AS_HELP_STRING([--disable-python], [Do not build Python wrappers]))
 AS_IF([test "x$enable_python" != "xno"], [BUILD="swig"], [BUILD=""])
@@ -14,6 +15,7 @@ AC_FUNC_MALLOC
 
 AC_CHECK_FUNCS([malloc memset],[],AC_MSG_ERROR(["missing standard functions"]))
 AC_CHECK_HEADERS([stdlib.h stdint.h string.h],[],AC_MSG_ERROR(["error: missing standard header files"]))
+PKG_CHECK_MODULES([FTDI1], [libftdi1 >= 1.0])
 
 dnl For OSX add MacPorts paths
 AS_IF([test "$(uname)" == "Darwin"],
@@ -22,23 +24,25 @@ AS_IF([test "$(uname)" == "Darwin"],
     CFLAGS="$CFLAGS -I/opt/local/include"
 ])
 
-AC_CHECK_HEADERS([ftdi.h],[],[echo "error: missing libftdi header files" && exit 1])
-AC_CHECK_LIB([ftdi],[ftdi_init],[],[echo "error: missing libftdi library" && exit 1],[])
+dnl AC_CHECK_HEADERS([ftdi.h],[],[echo "error: missing libftdi header files" && exit 1])
+dnl AC_CHECK_LIB([ftdi1],[ftdi_init],[],[echo "error: missing libftdi library" && exit 1],[])
 
-if test $BUILD
-then
+AS_IF([test $BUILD],
+[
 	AS_IF([! test $SWIG], [SWIG="$(which swig)"])
 	AS_IF([! test $SWIG], [SWIG="$(which swig2.0)"])
 	AS_IF([! test $SWIG], AC_MSG_ERROR(["error: could not locate swig"]))
 
-	if [[[ "$(uname)" == MINGW* ]]] ; then
+	AS_IF([[[ "$(uname)" == MINGW*]]],
+	[
 		AS_IF([! test $PYTHON], [PYTHON="C:/Python27/python.exe"])
 		AS_IF([! test $PYINCDIR], [PYINCDIR="C:/Python27/include"])
 		AS_IF([! test $PYLIBDIR], [PYLIBDIR="C:/Python27/libs"])
 		PYLDFLAGS="-lpython27 -L$PYLIBDIR"
 		PYCFLAGS="-I$PYINCDIR"
 		PYCPPFLAGS="-I$PYINCDIR"
-	else
+	],
+	[
 		AS_IF([! test $PYTHON], [PYTHON="$(which python)"])
 		AS_IF([! test $PYTHON], AC_MSG_ERROR(["error: python not found"]))
 		AS_IF([! test $PYCONF], [PYCONF="$(which python-config)"])
@@ -47,7 +51,7 @@ then
 		PYLDFLAGS="$($PYCONF --libs)"
 		PYCFLAGS="$($PYCONF --includes)"
 		PYCPPFLAGS="$($PYCONF --includes)"
-	fi
+	])
 
 	LDFLAGS="$PYLDFLAGS $LDFLAGS"
 	CFLAGS="$PYCFLAGS $CFLAGS"
@@ -55,25 +59,27 @@ then
 
 	AC_CHECK_HEADERS([Python.h],[],AC_MSG_ERROR(["error: missing python header files"]))
 
-	if ! test $PYLIB
-	then
+	AS_IF([! test $PYLIB],
+	[
 		dnl This is a hack to get a valid python library path
 		script=$(printf "import sys\nfor p in sys.path: print p")
 		PYLIB=$($PYTHON -c "$script" | grep -e '-packages$' | head -1)
-	fi
+	])
 
 	AS_IF([! test $PYLIB], AC_MSG_ERROR(["error: could not locate python site-packages path"]))
-fi
+])
 
-LDFLAGS="-lftdi $LDFLAGS"
-CFLAGS="-Wall -fPIC -fno-strict-aliasing $CFLAGS"
+LDFLAGS="$LDFLAGS $FTDI1_LIBS"
+CFLAGS="-Wall $FTDI1_CFLAGS $CFLAGS"
 
 dnl system specific compiler flags
+ISMINGW=0
 AS_CASE([$(uname)], 
 [MINGW*], 
 [
+ 	ISMINGW=1
 	SONAME="-soname"
-	LIBEXT="pyd"
+	AS_IF([test $BUILD], [LIBEXT="pyd"], [LIBEXT="dll"])
 ],
 [Darwin],
 [
@@ -92,5 +98,7 @@ AC_SUBST(SWIG, $SWIG)
 AC_SUBST(PYLIB, $PYLIB)
 AC_SUBST(SONAME, $SONAME)
 AC_SUBST(LIBEXT, $LIBEXT)
-AC_CONFIG_FILES([Makefile])
+AC_SUBST(TARGET, mpsse)
+AC_SUBST(ISMINGW, $ISMINGW)
+AC_CONFIG_FILES([Makefile examples/Makefile])
 AC_OUTPUT

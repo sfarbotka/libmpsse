@@ -3,14 +3,14 @@ SWIG=@SWIG@
 PYLIB=@PYLIB@
 SONAME=@SONAME@
 BUILD=@BUILD@
-LDFLAGS=@LDFLAGS@
-CFLAGS=@CFLAGS@
 LIBEXT=@LIBEXT@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 LIBDIR=@libdir@
 INCDIR=@includedir@
-TARGET=mpsse
+TARGET=@TARGET@
+LDFLAGS=@LDFLAGS@
+CFLAGS=@CFLAGS@ -fPIC -fno-strict-aliasing  
 
 all: $(TARGET) py$(BUILD)-build
 
@@ -18,7 +18,7 @@ $(TARGET): mpsse.o support.o
 	$(CC) $(CFLAGS) -shared -Wl,$(SONAME),lib$(TARGET).$(LIBEXT) $(TARGET).o support.o -o lib$(TARGET).$(LIBEXT) $(LDFLAGS)
 	ar rcs lib$(TARGET).a $(TARGET).o support.o
 
-example-code:
+example-code: all
 	make -C examples
 
 mpsse.o:

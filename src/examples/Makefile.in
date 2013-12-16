@@ -1,6 +1,9 @@
-LDFLAGS=-lmpsse
+CC=@CC@
+TARGET=@TARGET@
+LDFLAGS=@LDFLAGS@ -L.. -l$(TARGET)
+CFLAGS=@CFLAGS@ -I.. -DISMINGW=@ISMINGW@
 
-all: spiflash i2ceeprom ds1305 gpio bitbang
+all: spiflash i2ceeprom bitbang ds1305 gpio
 
 spiflash:
 	$(CC) $(CFLAGS) spiflash.c -o spiflash $(LDFLAGS)
@@ -20,5 +23,7 @@ bitbang:
 clean:
 	rm -f *.dSYM
 	rm -f bitbang gpio ds1305 i2ceeprom spiflash
+	rm -f bitbang.exe gpio.exe ds1305.exe i2ceeprom.exe spiflash.exe
+
 
 distclean: clean

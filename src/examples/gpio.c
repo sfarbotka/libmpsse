@@ -1,6 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpsse.h>
+#include <unistd.h>
+
+#if ISMINGW==1
+void sleep(int sec)
+{
+	Sleep( sec * 1000);
+}
+#endif
 
 int main(void)
 {
